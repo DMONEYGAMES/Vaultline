@@ -1,98 +1,222 @@
-# Vaultline 1.0.0
+# Vaultline
 
-**Vaultline only works on Mac right now; Windows support is planned.**
+<p align="center">
+  <img src="Extension/icons/icon128.png" alt="Vaultline app icon" width="88" height="88">
+</p>
 
-**Your Mac is the vault. Your browser extension is the interface.**
+<h3 align="center">Your Mac is the vault. Your browser extension is the interface.</h3>
 
-**Vaultline is not security-audited and still in the beginning stages.**
+<p align="center">
+  An open-source, local-first password manager for macOS, with a Chrome and Microsoft Edge extension.
+</p>
 
-Vaultline is an early-stage, local-first password manager for macOS with a Chrome/Edge extension. The extension is the day-to-day interface; the native macOS helper validates requests and stores records in the macOS Keychain.
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-3978F6">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-macOS-111827">
+  <img alt="Browser" src="https://img.shields.io/badge/browser-Chrome%20%7C%20Edge-4285F4">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-22A06B">
+  <img alt="Status" src="https://img.shields.io/badge/status-early%20release-orange">
+</p>
 
-> **Security status:** This is a first public-source milestone, not an independently audited password manager. Static checks are not a substitute for live macOS, Keychain, browser, and security testing. Use disposable sample data until you have completed the test plan and obtained an independent security review. Do not use Vaultline as your only protection for important accounts yet.
+<p align="center">
+  <a href="#features">Features</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="#security-and-privacy">Security</a> ·
+  <a href="#contributing">Contributing</a>
+</p>
 
-## Features in this build
+---
 
-- **Logins:** save, edit, delete, search, categories, favorites, tags, password generator, 12-word passphrase generator, five-entry password history, recently-used filtering, and exact-host matching for autofill.
-- **Cards:** add, edit, delete, favorite, tag, reveal/copy, Luhn format validation, and user-approved autofill of supported cardholder/number/expiry/postal fields on HTTPS pages. CVV/CVC and card PINs are not collected, stored, or filled.
-- **Secure notes:** create, edit, search, favorite, tag, and delete notes stored in Keychain.
-- **Personal identities:** store profile details and use supported fields in a user-approved form-fill action.
-- **Security Center:** local checks for short/reused passwords and HTTP website entries. No remote breach lookup is performed; the score is not a guarantee that an account is safe.
-- **Authentication:** macOS LocalAuthentication uses Touch ID when available, with Mac password fallback. The native bridge caches successful authentication for a short session (currently five minutes); Lock ends the session.
-- **Clipboard protection:** optional delayed clipboard clearing, only when the clipboard still contains the value Vaultline copied.
-- **Encrypted backup:** extension encrypts a complete export with AES-256-GCM using a passphrase-derived PBKDF2-SHA-256 key (600,000 iterations). Keep the passphrase safe; Vaultline cannot recover it.
-- **Activity history:** local audit events for supported vault actions. Event details intentionally avoid recording secret values.
-- **Themes/settings:** light, dark, and system appearance; configurable sidebar sections; save-login prompt and clipboard preferences.
-- **Keyboard shortcuts:** open the vault and request a save prompt; in-app shortcuts for search and creating an item.
+> [!IMPORTANT]
+> **Vaultline 1.0.0 is an early open-source release and has not received an independent security audit.** Static checks do not prove that the application is secure or that every feature works correctly in a live environment. Test with disposable sample data only. Do not use Vaultline as your only protection for important accounts or store sensitive real-world credentials until the implementation has been independently reviewed and thoroughly tested.
 
-## Deliberate 1.0.0 limits
+## What is Vaultline?
 
-- This release does not provide cloud sync, user accounts, or account-to-account password sharing. Records remain on the Mac.
-- Touch ID / Mac password approval is device-owner authentication; a separate TOTP factor for unlocking the Vaultline vault is not included in 1.0.0.
-- The Security Center performs local length/reuse/HTTP checks only. It does not query breach databases or guarantee that a password has not been exposed.
-- No independent security audit has been completed. Public source access is not proof that the software is production-ready.
+Vaultline is a local-first password manager built around a simple idea: keep credential records on your Mac, while using a browser extension as the everyday interface.
 
-## Architecture
+The macOS app provides a native vault viewer, editor, and authentication surface. The browser extension communicates with a small native helper through Chrome Native Messaging. The helper validates supported requests and accesses the macOS Keychain.
+
+**This release is for macOS only.** Chrome and Microsoft Edge are the supported Chromium browsers. Windows support is a future possibility, not a current feature.
+
+## Features
+
+### Passwords and vault items
+
+- Save, view, edit, delete, search, and organize website logins.
+- Match autofill suggestions against the exact normalized website hostname.
+- Generate passwords and 12-word passphrases.
+- Mark logins, cards, and notes as favorites; organize supported items with tags.
+- View up to five previous passwords for a login.
+- Filter by recently used accounts.
+- Store secure notes and personal identity details.
+
+### Browser extension
+
+- Use the extension as the main day-to-day Vaultline interface.
+- Request matching login suggestions for the current website.
+- Offer a save prompt when a populated login form is detected; a record is sent to Vaultline only after the user chooses to save it.
+- Fill supported login fields only after a user action. Vaultline does not submit the website's form.
+- Fill supported payment-card fields on HTTPS pages after a user action.
+- Use keyboard shortcuts to open Vaultline or request a save prompt.
+
+### Payment cards
+
+- Add, view, edit, delete, search, favorite, and tag payment-card records.
+- Validate card-number format using the Luhn check.
+- Support user-approved filling of supported cardholder, card-number, expiration, and postal-code fields on HTTPS pages.
+- **CVV/CVC codes and card PINs are not collected, stored, or autofilled.**
+
+### Security and settings
+
+- Use macOS authentication through LocalAuthentication: Touch ID when available, with the Mac account password as fallback.
+- Lock the vault to end the authenticated session.
+- Optionally clear a copied Vaultline value from the clipboard after a delay, if the clipboard still contains that same value.
+- Run local password checks for short or reused passwords and HTTP website entries.
+- View local activity events for supported vault actions.
+- Create and restore encrypted backups.
+- Choose light, dark, or system appearance and customize supported sidebar and save-prompt preferences.
+
+## How it works
 
 ```text
-Chrome / Edge extension (UI)
-          |
-          | Chrome Native Messaging (JSON, length-prefixed)
-          v
+Chrome / Microsoft Edge
+        |
+        | Chrome Native Messaging
+        v
 Vaultline native helper (macOS)
-          |
-          | LocalAuthentication + Security.framework
-          v
-macOS Keychain (credential records)
+        |
+        | LocalAuthentication + Security framework
+        v
+macOS Keychain
+        ^
+        |
+Vaultline Desktop app
 ```
 
-The desktop app is a native vault viewer/editor and authentication surface. The native helper is launched by the browser through Native Messaging; the desktop window does not have to remain open for extension requests. The extension holds UI preferences in `chrome.storage.local`, but credential records remain in the Mac Keychain.
+Credential records are stored locally in the Mac's Keychain. There is no cloud vault or remote credential database in 1.0.0. The browser extension stores interface preferences in browser storage, while credential records remain in the Keychain.
 
-The save-password detection content script runs on HTTP and HTTPS pages so it can detect a filled login form. It shows a prompt; it only sends a captured login to the native helper after the user explicitly clicks **Save to Mac**. This is broad website access and should be reviewed carefully before distributing the extension.
+The desktop window does not need to remain open for browser-extension requests; the browser launches the native helper when needed. The Mac must be available and able to authorize Keychain access.
 
-## Requirements
+## Getting started
 
-- macOS 13 or later
-- Xcode Command Line Tools / Swift compiler
-- Chrome 114+ or a compatible Chromium browser such as Microsoft Edge
-- Node.js and Python 3 for static checks and installation scripts
+### Requirements
 
-## App icon
+- macOS 13 or later.
+- Xcode Command Line Tools and the Swift compiler.
+- Google Chrome 114+ or Microsoft Edge.
+- Node.js and Python 3 for the repository's static checks and setup scripts.
 
-The macOS app uses the same artwork as the browser extension (`Extension/icons/icon128.png`). The build script creates `Vaultline.icns` and installs it into the `.app` bundle automatically.
+### 1. Get the source
 
-## Build and install on macOS
+Download the repository from GitHub or clone it:
 
-1. Extract this repository to a stable folder (for example `~/Applications/Vaultline-1.0.0`).
-2. In Terminal, run:
+```bash
+git clone https://github.com/DMONEYGAMES/Vaultline.git
+cd Vaultline
+```
+
+### 2. Verify and build the Mac app
+
+```bash
+chmod +x Scripts/*.sh
+./Scripts/verify-static.sh
+./Scripts/build-macos.sh
+open Build/Vaultline.app
+```
+
+### 3. Load the browser extension
+
+1. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
+2. Turn on **Developer mode**.
+3. Choose **Load unpacked**.
+4. Select the repository's `Extension` folder.
+5. Copy the extension ID shown by the browser.
+
+### 4. Connect the extension to the Mac helper
+
+1. For Chrome, put the extension ID in `Docs/extension_id.txt`. For Edge, use `Docs/edge_extension_id.txt`.
+2. These local ID files are intentionally ignored by Git. Do not commit your personal extension ID files.
+3. Run:
 
    ```bash
-   cd ~/Applications/Vaultline-1.0.0
-   chmod +x Scripts/*.sh
-   ./Scripts/verify-static.sh
-   ./Scripts/build-macos.sh
-   open Build/Vaultline.app
+   ./Scripts/install-native-host.sh
    ```
 
-3. In Chrome, open `chrome://extensions`; in Edge, open `edge://extensions`.
-4. Enable Developer mode and choose **Load unpacked**.
-5. Select this repository's `Extension` folder.
-6. Copy the extension ID into `Docs/extension_id.txt` (Chrome) or `Docs/edge_extension_id.txt` (Edge).
-7. Run `./Scripts/install-native-host.sh`.
-8. Fully quit and restart the browser.
-9. Test save, list, reveal, edit, delete, backup/restore, and autofill with disposable accounts and synthetic card data.
+4. Fully quit the browser with **Cmd+Q**, then reopen it.
+5. Open Vaultline and test using disposable accounts and synthetic card data.
 
-Do not delete older Vaultline folders or Keychain data until you have confirmed the new build can still read your existing records and that you have a valid encrypted backup.
+For expanded setup notes and troubleshooting, see the [build and installation guide](Docs/README.md).
 
-## Tests and verification
+## Security and privacy
+
+Vaultline is designed to keep credential records on the Mac rather than sync them to a cloud service. That design does not, by itself, guarantee security.
+
+Important details for this early release:
+
+- The native helper uses an allow-list of supported commands and macOS authentication before protected operations.
+- A successful authentication is cached for a short session (currently five minutes); locking ends the session.
+- Login autofill uses exact normalized hostname matching and requires a user action.
+- The save-password detection script runs on HTTP and HTTPS pages so it can detect populated login forms. It only sends a detected login after the user explicitly chooses the save prompt. Review this broad site access before installing.
+- Card autofill is restricted to HTTPS and supported fields. CVV/CVC and PIN values are not stored or filled.
+- Encrypted backups use AES-256-GCM with a PBKDF2-SHA-256-derived key. The backup passphrase is required to restore the file and cannot be recovered by Vaultline. The current backup payload limit is 600 KiB.
+- Clipboard clearing is best-effort and only clears the clipboard when it still contains the value Vaultline copied.
+- The Security Center performs local checks only. It does not query breach databases and its score is not a guarantee that an account is safe.
+
+### Not included in 1.0.0
+
+- Cloud synchronization or a hosted Vaultline account.
+- Account-to-account password sharing.
+- A TOTP-based second factor for unlocking the Vaultline vault.
+- Remote breach monitoring.
+- Windows support.
+- An independent security audit.
+
+Read the [security policy](SECURITY.md) and [release test plan](Docs/RELEASE_TEST_PLAN.md) before testing. Please do not post passwords, tokens, Keychain exports, backup files, or other sensitive data in public issues.
+
+## Testing
+
+Run the repository's static verification script:
 
 ```bash
 ./Scripts/verify-static.sh
 ```
 
-This checks JavaScript syntax, HTML selectors/resources, the extension manifest, card-number validation examples, native command allow-list coverage, shell syntax, and Swift parsing. It **does not** compile the native app against the macOS SDK, execute Keychain operations, verify Touch ID, exercise Chrome Native Messaging, or prove autofill works on real websites. Those require live testing on a Mac.
+Static verification checks source structure and selected contracts. It does **not** replace:
 
-See `Docs/RELEASE_TEST_PLAN.md` before using real credentials. See `Docs/GITHUB_PUBLISHING.md` for repository setup and publishing steps. The extension requests clipboard-read permission so it can compare clipboard contents before its optional clear timer; this is used to avoid deleting a different value copied by another application.
+- A full native macOS build against the target Mac's SDK.
+- Live Keychain and Touch ID / Mac-password testing.
+- Chrome or Edge Native Messaging tests.
+- Real-site autofill compatibility testing.
+- An independent security review.
 
-## Open source
+Use the [release test plan](Docs/RELEASE_TEST_PLAN.md) and disposable test accounts. Do not assume a passing static check means the application is production-ready.
 
-Vaultline is released under the MIT License. Contributions are welcome through issues and pull requests. Security-sensitive changes must be carefully reviewed; see `CONTRIBUTING.md` and `SECURITY.md`.
+## Contributing
+
+Contributions, bug reports, documentation improvements, and thoughtful feature ideas are welcome.
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Check existing issues before starting significant work.
+3. Open an issue to discuss larger changes.
+4. Submit a pull request with a clear explanation and test notes.
+
+Security-sensitive changes require extra care. Please follow [SECURITY.md](SECURITY.md) and do not disclose vulnerabilities or sensitive data in public issues.
+
+## Project documents
+
+- [Build and installation guide](Docs/README.md)
+- [Changelog](CHANGELOG.md)
+- [Release test plan](Docs/RELEASE_TEST_PLAN.md)
+- [Security policy](SECURITY.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [MIT License](LICENSE)
+
+## License
+
+Vaultline is released under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Made with care by <a href="https://github.com/DMONEYGAMES">DMONEYGAMES</a> · Open source, built in public.
+</p>
