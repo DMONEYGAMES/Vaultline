@@ -4,6 +4,8 @@
 
 **Your Mac is the vault. Your browser extension is the interface.**
 
+**Vaultline is not security-audited and still in the beginning stages.**
+
 Vaultline is an early-stage, local-first password manager for macOS with a Chrome/Edge extension. The extension is the day-to-day interface; the native macOS helper validates requests and stores records in the macOS Keychain.
 
 > **Security status:** This is a first public-source milestone, not an independently audited password manager. Static checks are not a substitute for live macOS, Keychain, browser, and security testing. Use disposable sample data until you have completed the test plan and obtained an independent security review. Do not use Vaultline as your only protection for important accounts yet.
