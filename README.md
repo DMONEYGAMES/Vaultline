@@ -1,5 +1,7 @@
 # Vaultline 1.0.0
 
+**Vaultline only works on Mac right now; we will expand to Windows soon.**
+
 **Your Mac is the vault. Your browser extension is the interface.**
 
 Vaultline is an early-stage, local-first password manager for macOS with a Chrome/Edge extension. The extension is the day-to-day interface; the native macOS helper validates requests and stores records in the macOS Keychain.
