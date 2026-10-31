@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Vaultline — Password Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="vaultline-body">
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <main id="connect-screen" class="connect-screen">
+    <div class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>Vaultline</span><b>1.0.0</b></div>
+    <section class="connect-card">
+      <div class="connect-icon">⌑</div>
+      <p class="eyebrow">DESKTOP-BACKED VAULT</p>
+      <h1 id="connect-title">Connect to Vaultline Desktop</h1>
+      <p id="connect-copy">Your browser extension is the main interface. Your Mac stores the passwords securely in Keychain.</p>
+      <div id="connect-error" class="error-message" hidden></div>
+      <button id="retry-connect" class="button primary full">Connect to desktop</button>
+      <div class="connect-foot"><span class="green-dot"></span> Passwords are not stored in browser extension storage.</div>
+    </section>
+    <p class="connect-note">Install the Vaultline Desktop companion and native messaging host on this Mac, then restart Chrome.</p>
+  </main>
+
+  <main id="app-screen" class="app-shell" hidden>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>Vaultline</span><b>1.0.0</b></div>
+      <div class="topbar-right">
+        <span id="connection-status" class="status-pill"><i></i> Desktop connected</span>
+        <button id="theme-button" class="icon-button" title="Toggle theme" aria-label="Toggle theme">◐</button>
+        <button id="security-button" class="button subtle small">Security</button><button id="settings-button" class="button subtle small">Settings</button><button id="backup-button" class="button subtle small">Backup</button><button id="lock-button" class="button subtle small">Lock</button>
+      </div>
+    </header>
+
+    <section class="welcome-row">
+      <div><p class="eyebrow">YOUR PRIVATE VAULT</p><h1>Password manager</h1><p class="muted">Your Mac is the vault. This extension is the interface.</p></div>
+      <div class="welcome-actions"><button id="capture-button" class="button subtle">＋ Save from this page</button><button id="add-card-button" class="button subtle">＋ Add card</button><button id="add-note-button" class="button subtle" hidden>＋ Add note</button><button id="add-identity-button" class="button subtle" hidden>＋ Add identity</button><button id="add-button" class="button primary">＋ Add login</button></div>
+    </section>
+
+    <section class="site-banner" id="site-banner">
+      <div class="site-symbol">◎</div>
+      <div class="site-copy"><strong id="site-title">No website selected</strong><span id="site-subtitle">Click the Vaultline icon while viewing a login page to use autofill.</span></div>
+      <span id="site-match-count" class="match-count">—</span>
+    </section>
+
+    <section class="workspace">
+      <aside class="list-panel">
+        <div class="list-heading"><div><p id="list-eyebrow" class="eyebrow">YOUR VAULT</p><h2 id="list-title">Your accounts <span id="login-count">0</span></h2></div><button id="refresh-button" class="icon-button" title="Refresh vault" aria-label="Refresh vault">↻</button></div><div class="view-tabs"><button id="view-logins" class="view-tab active" type="button">Logins <span id="tab-login-count">0</span></button><button id="view-cards" class="view-tab" type="button">Cards <span id="tab-card-count">0</span></button><button id="view-notes" class="view-tab" type="button">Notes <span id="tab-note-count">0</span></button><button id="view-identities" class="view-tab" type="button">Identities <span id="tab-identity-count">0</span></button></div>
+        <div id="item-filters" class="item-filters"><button id="filter-all" class="filter-chip active" type="button">All</button><button id="filter-recent" class="filter-chip" type="button">Recently used</button><button id="filter-favorites" class="filter-chip" type="button">Favorites</button></div>
+        <label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="Search sites or usernames…" autocomplete="off"></label>
+        <div id="login-list" class="login-list"></div>
+        <div id="empty-state" class="empty-state"><div>⌑</div><strong id="empty-title">Your vault is ready</strong><p id="empty-copy">Add your first login. It will be stored in your Mac's Keychain, not in browser storage.</p><button id="empty-add-button" class="button primary small">Add a login</button></div>
+      </aside>
+
+      <section class="detail-panel" id="detail-panel">
+        <div class="detail-empty"><div class="detail-empty-icon">⌑</div><h2>Select a login</h2><p>Choose an account to view its details, copy a field, or fill the matching website.</p></div>
+      </section>
+    </section>
+
+    <footer class="app-footer"><span><i class="green-dot"></i> Stored in macOS Keychain</span><span>Passwords are requested only when you reveal, copy, or autofill.</span></footer>
+  </main>
+
+  <div id="login-modal" class="modal-backdrop" hidden>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-heading"><div><p class="eyebrow">MAC KEYCHAIN RECORD</p><h2 id="modal-title">Add a login</h2></div><button id="modal-close" class="icon-button" aria-label="Close">×</button></header>
+      <form id="login-form">
+        <div class="form-grid">
+          <label class="field span-2">Account name<input id="field-title" maxlength="120" required placeholder="e.g. Personal Google"></label>
+          <label class="field span-2">Website<input id="field-website" maxlength="500" required inputmode="url" placeholder="https://accounts.example.com"></label>
+          <label class="field span-2">Username or email<input id="field-username" maxlength="500" autocomplete="off" placeholder="you@example.com"></label>
+          <label class="field span-2">Password<div class="password-control"><input id="field-password" type="password" maxlength="2000" required autocomplete="new-password" placeholder="Enter password"><button id="generate-button" type="button" class="text-action">Generate</button><button id="generate-passphrase-button" type="button" class="text-action" style="right:70px">Passphrase</button></div></label>
+          <label class="field">Category<select id="field-category"><option>Personal</option><option>Work</option><option>Banking</option><option>Email</option><option>Social</option><option>Shopping</option><option>Gaming</option><option>Travel</option><option>Other</option></select></label>
+          <label class="field span-2">Tags<input id="field-tags" maxlength="300" placeholder="Comma-separated tags"></label><label class="favorite-field"><input id="field-favorite" type="checkbox"> Favorite this login</label>
+        </div>
+        <p id="form-error" class="error-message" hidden></p>
+        <div class="modal-actions"><button id="modal-cancel" type="button" class="button subtle">Cancel</button><button type="submit" class="button primary">Save to Mac</button></div>
+      </form>
+      <p class="modal-footnote">The extension sends this login to Vaultline Desktop over Chrome Native Messaging. The desktop writes it to macOS Keychain.</p>
+    </section>
+  </div>
+
+  <div id="card-modal" class="modal-backdrop" hidden>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="card-modal-title">
+      <header class="modal-heading"><div><p class="eyebrow">MAC KEYCHAIN RECORD</p><h2 id="card-modal-title">Add a payment card</h2></div><button id="card-modal-close" class="icon-button" aria-label="Close">×</button></header>
+      <form id="card-form">
+        <div class="form-grid">
+          <label class="field span-2">Card nickname<input id="card-title" maxlength="120" required placeholder="e.g. Personal Visa"></label>
+          <label class="field span-2">Cardholder name<input id="card-cardholder" maxlength="120" placeholder="Name on card"></label>
+          <label class="field span-2">Card number<div class="password-control"><input id="card-number" type="password" maxlength="40" required inputmode="numeric" autocomplete="off" placeholder="Card number"><button id="card-number-toggle" type="button" class="text-action">Show</button></div></label>
+          <label class="field">Expiration month<select id="card-month" required><option value="">Month</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select></label>
+          <label class="field">Expiration year<input id="card-year" type="number" min="2020" max="2099" required placeholder="YYYY"></label>
+          <label class="field">Billing ZIP / postal code<input id="card-zip" maxlength="24" autocomplete="off"></label>
+          <label class="favorite-field"><input id="card-favorite" type="checkbox"> Favorite this card</label>
+          <label class="field span-2">Tags<input id="card-tags" maxlength="400" placeholder="Personal, travel, work"></label>
+          <label class="field span-2">Notes<input id="card-notes" maxlength="2000" placeholder="Optional reminder"></label>
+        </div>
+        <p id="card-form-error" class="error-message" hidden></p>
+        <div class="modal-actions"><button id="card-modal-cancel" type="button" class="button subtle">Cancel</button><button type="submit" class="button primary">Save to Mac</button></div>
+      </form>
+      <p class="modal-footnote">Card data is stored in macOS Keychain. Vaultline deliberately does not store CVV/CVC codes or card PINs.</p>
+    </section>
+  </div>
+
+  <div id="note-modal" class="modal-backdrop" hidden><section class="modal-card" role="dialog" aria-modal="true"><header class="modal-heading"><div><p class="eyebrow">MAC KEYCHAIN RECORD</p><h2 id="note-modal-title">Add secure note</h2></div><button id="note-modal-close" class="icon-button">×</button></header><form id="note-form"><div class="form-grid"><label class="field span-2">Title<input id="note-title" maxlength="120" required></label><label class="field span-2">Category<input id="note-category" maxlength="40" value="Personal"></label><label class="field span-2">Tags<input id="note-tags" maxlength="300" placeholder="e.g. recovery, personal"></label><label class="field span-2">Private note<textarea id="note-content" maxlength="20000" rows="8" required></textarea></label><label class="favorite-field"><input id="note-favorite" type="checkbox"> Favorite</label></div><p id="note-error" class="error-message" hidden></p><div class="modal-actions"><button id="note-cancel" type="button" class="button subtle">Cancel</button><button type="submit" class="button primary">Save note</button></div></form><p class="modal-footnote">Secure note content is stored in your Mac Keychain.</p></section></div>
+  <div id="identity-modal" class="modal-backdrop" hidden><section class="modal-card" role="dialog" aria-modal="true"><header class="modal-heading"><div><p class="eyebrow">MAC KEYCHAIN RECORD</p><h2 id="identity-modal-title">Add identity</h2></div><button id="identity-modal-close" class="icon-button">×</button></header><form id="identity-form"><div class="form-grid"><label class="field span-2">Profile name<input id="identity-title" maxlength="120" required placeholder="Personal profile"></label><label class="field span-2">Full name<input id="identity-name" maxlength="240"></label><label class="field">Email<input id="identity-email" maxlength="240"></label><label class="field">Phone<input id="identity-phone" maxlength="80"></label><label class="field">Company<input id="identity-company" maxlength="240"></label><label class="field">Country<input id="identity-country" maxlength="240"></label><label class="field span-2">Address<input id="identity-address1" maxlength="240"></label><label class="field span-2">Address line 2<input id="identity-address2" maxlength="240"></label><label class="field">City<input id="identity-city" maxlength="240"></label><label class="field">State / region<input id="identity-region" maxlength="240"></label><label class="field">Postal code<input id="identity-postal" maxlength="80"></label><label class="field span-2">Notes<input id="identity-notes" maxlength="2000"></label><label class="field span-2">Tags<input id="identity-tags" maxlength="300"></label><label class="favorite-field"><input id="identity-favorite" type="checkbox"> Favorite</label></div><p id="identity-error" class="error-message" hidden></p><div class="modal-actions"><button id="identity-cancel" type="button" class="button subtle">Cancel</button><button type="submit" class="button primary">Save identity</button></div></form></section></div>
+  <div id="history-modal" class="modal-backdrop" hidden><section class="modal-card" role="dialog" aria-modal="true"><header class="modal-heading"><div><p class="eyebrow">PASSWORD HISTORY</p><h2>Previous passwords</h2></div><button id="history-close" class="icon-button">×</button></header><div id="history-list"></div><p class="modal-footnote">Previous passwords are kept in the encrypted Keychain record, up to five versions.</p></section></div>
+  <div id="backup-modal" class="modal-backdrop" hidden><section class="modal-card" role="dialog" aria-modal="true"><header class="modal-heading"><div><p class="eyebrow">ENCRYPTED BACKUP</p><h2>Back up your vault</h2></div><button id="backup-close" class="icon-button">×</button></header><p class="muted">Create or restore a password-encrypted backup. The backup passphrase is separate from your Mac login.</p><label class="field span-2">Backup passphrase<input id="backup-passphrase" type="password" minlength="12" autocomplete="new-password" placeholder="Use a strong unique passphrase"></label><div class="modal-actions"><button id="backup-import" class="button subtle" type="button">Restore backup</button><button id="backup-export" class="button primary" type="button">Export encrypted backup</button></div><input id="backup-file" type="file" accept=".vaultline,.json,application/json" hidden><p class="modal-footnote">Keep your passphrase safe. Vaultline cannot recover it. Treat any unencrypted export as sensitive; this tool only creates encrypted backup files.</p></section></div>
+  <div id="tools-modal" class="modal-backdrop" hidden><section class="modal-card" role="dialog" aria-modal="true"><header class="modal-heading"><div><p class="eyebrow">VAULTLINE</p><h2 id="tools-title">Security Center</h2></div><button id="tools-close" class="icon-button">×</button></header><div id="tools-content"></div></section></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="manager.js"></script>
+</body>
+</html>
