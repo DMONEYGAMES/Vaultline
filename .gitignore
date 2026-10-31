@@ -1,28 +1,29 @@
-# macOS / Xcode
+# macOS
 .DS_Store
 *.xcuserstate
 DerivedData/
 .build/
 .swiftpm/
 
-# Local build outputs and signing artifacts
+# Build outputs
 Build/
 *.app/
 *.dSYM/
 *.ipa
 
-# Per-browser local Native Messaging extension identifiers
+# Local browser extension IDs
 Docs/extension_id.txt
 Docs/edge_extension_id.txt
 
-# Vault data, exports, and secrets (never commit real user data)
+# Vault data and backups
 *.vaultline
-*.csv
-*.keychain-db
+*.vaultline-backup
 *.keychain
+*.keychain-db
 *.sqlite
 *.db
-*.log
+
+# Secrets
 .env
 .env.*
 *.pem
@@ -30,7 +31,9 @@ Docs/edge_extension_id.txt
 *.key
 secrets/
 
-# Editor / OS files
+# Archives
+*.zip
+
+# Editors
 .vscode/
 .idea/
-*.zip
