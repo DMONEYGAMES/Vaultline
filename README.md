@@ -1,6 +1,6 @@
 # Vaultline 1.0.0
 
-**Vaultline only works on Mac right now; we will expand to Windows soon.**
+**Vaultline only works on Mac right now; Windows support is planned.**
 
 **Your Mac is the vault. Your browser extension is the interface.**
 
