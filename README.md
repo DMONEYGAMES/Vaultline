@@ -20,6 +20,7 @@
 
 <p align="center">
   <a href="#features">Features</a> ·
+  <a href="#screenshots">Screenshots</a> ·
   <a href="#getting-started">Getting started</a> ·
   <a href="#security-and-privacy">Security</a> ·
   <a href="#contributing">Contributing</a>
@@ -37,6 +38,22 @@ Vaultline is a local-first password manager built around a simple idea: keep cre
 The macOS app provides a native vault viewer, editor, and authentication surface. The browser extension communicates with a small native helper through Chrome Native Messaging. The helper validates supported requests and accesses the macOS Keychain.
 
 **This release is for macOS only.** Chrome and Microsoft Edge are the supported Chromium browsers. Windows support is a future possibility, not a current feature.
+
+## Screenshots
+
+<p align="center">
+  <img src="Screenshots/overview.webp" alt="Vaultline desktop overview" width="49%">
+  <img src="Screenshots/vault-login.webp" alt="Vaultline login details with the username redacted" width="49%">
+</p>
+<p align="center">
+  <img src="Screenshots/browser-extension.webp" alt="Vaultline browser extension with the username redacted" width="49%">
+  <img src="Screenshots/security-center.webp" alt="Vaultline Security Center" width="49%">
+</p>
+<p align="center">
+  <img src="Screenshots/payment-cards.webp" alt="Vaultline payment cards with card details masked" width="70%">
+</p>
+
+<p align="center"><sub>Vaultline 1.0.0 interface screenshots. Usernames are redacted where they appeared; passwords and full card numbers remain masked.</sub></p>
 
 ## Features
 
