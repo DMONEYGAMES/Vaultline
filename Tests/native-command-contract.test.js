@@ -22,4 +22,7 @@ for (const command of required) {
 }
 if (!native.includes('kSecMatchLimit as String: kSecMatchLimitOne')) throw new Error('Expected single-item Keychain data reads were not found.');
 if (!native.includes('com.vaultline.credentials.v2')) throw new Error('Existing Keychain service identifier changed unexpectedly.');
+if (!native.includes('let findings: [[String: Any]] = records.compactMap')) throw new Error('Security audit findings are missing.');
+if (!native.includes('"issues": issues')) throw new Error('Security audit issue metadata is missing.');
+if (!native.includes('"version": "1.2.0"')) throw new Error('Native helper version was not updated.');
 process.stdout.write(`Native command contract passed (${required.length} authenticated commands).\n`);
