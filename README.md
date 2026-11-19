@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-3978F6">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.2.0-3978F6">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS-111827">
   <img alt="Browser" src="https://img.shields.io/badge/browser-Chrome%20%7C%20Edge-4285F4">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-22A06B">
@@ -29,7 +29,7 @@
 ---
 
 > [!IMPORTANT]
-> **Vaultline 1.0.0 is an early open-source release and has not received an independent security audit.** Static checks do not prove that the application is secure or that every feature works correctly in a live environment. Test with disposable sample data only. Do not use Vaultline as your only protection for important accounts or store sensitive real-world credentials until the implementation has been independently reviewed and thoroughly tested.
+> **Vaultline 1.2.0 is an early open-source release and has not received an independent security audit.** Static checks do not prove that the application is secure or that every feature works correctly in a live environment. Test with disposable sample data only. Do not use Vaultline as your only protection for important accounts or store sensitive real-world credentials until the implementation has been independently reviewed and thoroughly tested.
 
 ## What is Vaultline?
 
@@ -61,7 +61,8 @@ The macOS app provides a native vault viewer, editor, and authentication surface
 
 - Save, view, edit, delete, search, and organize website logins.
 - Match autofill suggestions against the exact normalized website hostname.
-- Generate passwords and 12-word passphrases.
+- Use the Password Generator Studio for configurable 12–64-character passwords or 4–10-word passphrases.
+- Choose character classes, exclude similar-looking characters, copy a generated value, or place it directly into the login form.
 - Mark logins, cards, and notes as favorites; organize supported items with tags.
 - View up to five previous passwords for a login.
 - Filter by recently used accounts.
@@ -88,7 +89,7 @@ The macOS app provides a native vault viewer, editor, and authentication surface
 - Use macOS authentication through LocalAuthentication: Touch ID when available, with the Mac account password as fallback.
 - Lock the vault to end the authenticated session.
 - Optionally clear a copied Vaultline value from the clipboard after a delay, if the clipboard still contains that same value.
-- Run local password checks for short or reused passwords and HTTP website entries.
+- Run local password checks for short or reused passwords and HTTP website entries; Security Center lists affected logins and finding reasons without returning password values.
 - View local activity events for supported vault actions.
 - Create and restore encrypted backups.
 - Choose light, dark, or system appearance and customize supported sidebar and save-prompt preferences.
@@ -110,7 +111,7 @@ macOS Keychain
 Vaultline Desktop app
 ```
 
-Credential records are stored locally in the Mac's Keychain. There is no cloud vault or remote credential database in 1.0.0. The browser extension stores interface preferences in browser storage, while credential records remain in the Keychain.
+Credential records are stored locally in the Mac's Keychain. There is no cloud vault or remote credential database in 1.2.0. The browser extension stores interface preferences in browser storage, while credential records remain in the Keychain.
 
 The desktop window does not need to remain open for browser-extension requests; the browser launches the native helper when needed. The Mac must be available and able to authorize Keychain access.
 
@@ -179,7 +180,7 @@ Important details for this early release:
 - Clipboard clearing is best-effort and only clears the clipboard when it still contains the value Vaultline copied.
 - The Security Center performs local checks only. It does not query breach databases and its score is not a guarantee that an account is safe.
 
-### Not included in 1.0.0
+### Not included in 1.2.0
 
 - Cloud synchronization or a hosted Vaultline account.
 - Account-to-account password sharing.
