@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 — Password Generator Studio and actionable Security Center
+
+- Added a standalone Password Generator Studio to the browser extension.
+- Added configurable 12–64-character passwords with uppercase, lowercase, number, symbol, and ambiguous-character options.
+- Added configurable 4–10-word passphrases with selectable separators.
+- Generated values use the browser Web Crypto API with rejection sampling and a cryptographically secure shuffle; they are only placed into the login editor or clipboard after a user action.
+- Added rough search-space estimates with an explicit note that estimates are not a security guarantee.
+- Expanded Security Center results to identify affected login records and local findings (short password, reused password, or HTTP website) without returning password values.
+- Added automated Node tests for generator options, passphrase settings, class coverage, and estimated search-space calculations.
+- Bumped the desktop app, native helper, and browser extension version to 1.2.0.
+
 ## 1.0.0 — First open-source feature release
 
 - Retained the extension-first architecture with macOS Keychain as the local source of truth.
