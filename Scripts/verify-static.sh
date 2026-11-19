@@ -5,8 +5,10 @@ command -v node >/dev/null 2>&1 || { echo "Node.js is required for JavaScript sy
 command -v swiftc >/dev/null 2>&1 || { echo "Swift compiler is required for Swift syntax checks."; exit 1; }
 node --check "$ROOT/Extension/background.js"
 node --check "$ROOT/Extension/manager.js"
+node --check "$ROOT/Extension/password-generator.js"
 node --check "$ROOT/Extension/content.js"
 node "$ROOT/Tests/card-number-validation.test.js"
+node "$ROOT/Tests/password-generator.test.js"
 node "$ROOT/Tests/native-command-contract.test.js"
 bash -n "$ROOT/Scripts/build-macos.sh"
 bash -n "$ROOT/Scripts/install-native-host.sh"
