@@ -382,7 +382,7 @@ struct ContentView: View {
                     .foregroundStyle(VaultlinePalette.muted)
             }
             Spacer(minLength: 4)
-            Text("1.0.0")
+            Text("1.2.0")
                 .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundStyle(VaultlinePalette.muted)
                 .padding(.horizontal, 8)
