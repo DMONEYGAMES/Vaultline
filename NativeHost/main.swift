@@ -495,7 +495,7 @@ while let message = readMessage() {
     }
 
     if command == "ping" {
-        reply(["ok": true, "version": "1.0.0", "store": "macOS-Keychain"])
+        reply(["ok": true, "version": "1.2.0", "store": "macOS-Keychain"])
         continue
     }
     if command == "lock" {
@@ -672,11 +672,26 @@ while let message = readMessage() {
     case "securityAudit":
         let (records, status) = keychainList()
         guard status == errSecSuccess else { reply(["ok": false, "error": "keychain-list-failed", "status": Int(status)]); continue }
-        let weak = records.filter { $0.password.count < 12 }.count
+        let weakRecords = records.filter { $0.password.count < 12 }
         let grouped = Dictionary(grouping: records, by: { $0.password })
-        let reused = grouped.values.filter { $0.count > 1 }.reduce(0) { $0 + $1.count }
-        let insecure = records.filter { URL(string: $0.website)?.scheme?.lowercased() == "http" && !["localhost", "127.0.0.1"].contains($0.host) }.count
-        reply(["ok": true, "total": records.count, "weak": weak, "reused": reused, "insecureSites": insecure, "favorites": records.filter { $0.favorite }.count])
+        let reusedGroups = grouped.values.filter { $0.count > 1 }
+        let reusedIDs = Set(reusedGroups.flatMap { $0.map { $0.id } })
+        let insecureRecords = records.filter { URL(string: $0.website)?.scheme?.lowercased() == "http" && !["localhost", "127.0.0.1"].contains($0.host) }
+        let weakIDs = Set(weakRecords.map { $0.id })
+        let insecureIDs = Set(insecureRecords.map { $0.id })
+        let findings: [[String: Any]] = records.compactMap { record in
+            var issues: [String] = []
+            if weakIDs.contains(record.id) { issues.append("weak") }
+            if reusedIDs.contains(record.id) { issues.append("reused") }
+            if insecureIDs.contains(record.id) { issues.append("http") }
+            guard !issues.isEmpty else { return nil }
+            // Return metadata only. Password values are never included in findings.
+            return ["id": record.id, "title": record.title, "website": record.website, "issues": issues]
+        }
+        let reused = reusedGroups.reduce(0) { $0 + $1.count }
+        reply(["ok": true, "total": records.count, "weak": weakRecords.count, "reused": reused,
+               "insecureSites": insecureRecords.count, "favorites": records.filter { $0.favorite }.count,
+               "findings": findings])
 
     case "exportVault":
         let (logins, loginStatus) = keychainList(); let (cards, cardStatus) = keychainListCards()
