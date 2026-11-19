@@ -632,13 +632,13 @@ function openPasswordGenerator(mode = 'password') {
       $g('gen-output').value = generatedSecret;
     } catch(e) { generatedSecret=''; $g('gen-output').value=''; $g('gen-estimate').textContent=e.message; }
   }
-  function mode(next) {
+  function switchMode(next) {
     generatorMode=next; const phrase=next==='passphrase';
     $g('gen-password-options').hidden=phrase; $g('gen-phrase-options').hidden=!phrase;
     $g('gen-password').classList.toggle('active',!phrase); $g('gen-phrase').classList.toggle('active',phrase); generate();
   }
-  $g('gen-password').addEventListener('click',()=>mode('password'));
-  $g('gen-phrase').addEventListener('click',()=>mode('passphrase'));
+  $g('gen-password').addEventListener('click',()=>switchMode('password'));
+  $g('gen-phrase').addEventListener('click',()=>switchMode('passphrase'));
   $g('gen-length').addEventListener('input',e=>{$g('gen-length-label').textContent=e.target.value+' characters';generate()});
   ['gen-upper','gen-lower','gen-number','gen-symbol','gen-ambiguous','gen-words','gen-separator'].forEach(id=>$g(id).addEventListener('change',generate));
   $g('gen-again').addEventListener('click',generate);
@@ -649,7 +649,7 @@ function openPasswordGenerator(mode = 'password') {
     $('#field-password').value=generatedSecret;$('#field-password').type='text';
     $('#tools-modal').hidden=true;generatedSecret='';$g('gen-output').value='';$('#field-password').focus();
   });
-  mode(mode === 'passphrase' ? 'passphrase' : 'password');
+  switchMode(mode === 'passphrase' ? 'passphrase' : 'password');
 }
 function closeToolsModal() {
   $('#tools-modal').hidden=true; generatedSecret='';
