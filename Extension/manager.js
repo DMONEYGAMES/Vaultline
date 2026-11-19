@@ -660,7 +660,23 @@ async function openSecurityCenter(){
   $('#tools-title').textContent='Security Center';$('#tools-content').replaceChildren();
   const box=document.createElement('div');box.innerHTML='<p class="muted">Run a local-only review of the passwords stored on this Mac. Passwords are not sent to a web service.</p><button class="button primary" id="run-audit">Run password health check</button><div id="audit-results" class="tools-results"></div><button class="button subtle" id="show-activity">View activity history</button>';
   $('#tools-content').append(box);$('#tools-modal').hidden=false;
-  box.querySelector('#run-audit').addEventListener('click',async()=>{const result=await desktopRequest('securityAudit');const node=box.querySelector('#audit-results');node.replaceChildren();const entries=[['Total logins',result.total],['Weak / short passwords',result.weak],['Reused passwords',result.reused],['HTTP websites',result.insecureSites],['Favorites',result.favorites]];for(const [label,value] of entries){const row=document.createElement('div');row.className='detail-field';const a=document.createElement('strong');a.textContent=label;const b=document.createElement('b');b.textContent=String(value??0);row.append(a,b);node.append(row)}const safe=document.createElement('p');safe.className='muted';safe.textContent='This checks password length and reuse only. It is not a breach check and does not guarantee an account is safe.';node.append(safe)});
+  box.querySelector('#run-audit').addEventListener('click',async()=>{
+    const result=await desktopRequest('securityAudit'),node=box.querySelector('#audit-results');node.replaceChildren();
+    const rows=[['Total logins',result.total],['Weak / short passwords',result.weak],['Reused passwords',result.reused],['HTTP websites',result.insecureSites],['Favorites',result.favorites]];
+    for(const [label,value] of rows){const row=document.createElement('div');row.className='detail-field';const a=document.createElement('strong');a.textContent=label;const b=document.createElement('b');b.textContent=String(value??0);row.append(a,b);node.append(row)}
+    const findings=box.querySelector('#audit-findings');findings.replaceChildren();
+    for(const finding of (result.findings||[])){
+      const row=document.createElement('div');row.className='detail-field';const main=document.createElement('div');main.className='field-main';
+      const title=document.createElement('strong');title.textContent=finding.title||'Saved login';const detail=document.createElement('small');
+      const labels=(finding.issues||[]).map(issue=>({weak:'Short password',reused:'Password reused',http:'Unencrypted HTTP site'}[issue]||'Review needed'));
+      detail.textContent=[finding.website||'',...labels].filter(Boolean).join(' · ');main.append(title,detail);
+      const review=document.createElement('button');review.type='button';review.className='inline-button';review.textContent='Review';
+      review.addEventListener('click',()=>{$('#tools-modal').hidden=true;viewMode='logins';itemFilter='all';selectedId=finding.id;render()});
+      row.append(main,review);findings.append(row);
+    }
+    if(!(result.findings||[]).length){const ok=document.createElement('p');ok.className='muted';ok.textContent='No issues were found by these local checks. This is not a breach check and does not guarantee an account is safe.';findings.append(ok)}
+    const safe=document.createElement('p');safe.className='muted';safe.textContent='Checks include password length, reuse, and HTTP website entries only. No breach database is queried.';node.append(safe)
+  });
   box.querySelector('#show-activity').addEventListener('click',async()=>{const result=await desktopRequest('listActivity');$('#tools-title').textContent='Vault activity';const node=$('#tools-content');node.replaceChildren();for(const event of (result.events||[])){const row=document.createElement('div');row.className='detail-field';const a=document.createElement('div');a.className='field-main';const t=document.createElement('strong');t.textContent=event.action;const d=document.createElement('small');d.textContent=`${event.detail} · ${new Date(event.date).toLocaleString()}`;a.append(t,d);row.append(a);node.append(row)}if(!result.events?.length)node.textContent='No recorded activity yet.'});
 }
 function openSettings(){
