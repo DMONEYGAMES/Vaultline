@@ -24,6 +24,8 @@ let revealedId = null;
 let revealedPassword = '';
 let revealTimer = null;
 let toastTimer = null;
+let generatorMode = 'password';
+let generatedSecret = '';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -601,6 +603,59 @@ function randomPassword(length = 22) {
 const WORDS=['amber','anchor','apricot','arch','atlas','aurora','badger','bamboo','beacon','birch','bison','bluebird','boulder','breeze','brook','cactus','camera','canary','canyon','carbon','cedar','cello','cinder','citadel','clover','comet','copper','coral','cosmos','cricket','crystal','cypress','daisy','delta','denim','dolphin','dragon','drift','eagle','echo','ember','falcon','fern','fjord','flannel','flint','forest','fossil','galaxy','garden','ginger','glacier','goblin','golden','granite','harbor','hazel','helium','heron','honey','horizon','iceberg','indigo','island','ivory','jade','jasmine','jigsaw','juniper','kettle','kiwi','lantern','laurel','lemon','lilac','lizard','lotus','magnet','maple','marble','meadow','meteor','midnight','mint','mosaic','mountain','nebula','nectar','nickel','nightjar','north','oasis','ocean','olive','onyx','orchid','otter','panda','paper','pebble','pepper','phoenix','piano','picket','pine','planet','plum','pocket','polar','prism','quartz','rabbit','radar','rainbow','raven','ripple','river','robin','rocket','saffron','sailor','saturn','scarlet','shadow','silver','sketch','slate','solar','sparrow','spruce','squirrel','starling','storm','summit','sunrise','tangerine','thistle','thunder','timber','topaz','tractor','tulip','tundra','turtle','velvet','violet','volcano','walnut','willow','winter','wizard','wren','zephyr','zinc'];
 function randomIndex(max){const limit=Math.floor(256/max)*max;let v;do{const a=new Uint8Array(1);crypto.getRandomValues(a);v=a[0]}while(v>=limit);return v%max}
 function randomPassphrase(){return Array.from({length:12},()=>WORDS[randomIndex(WORDS.length)]).join('-')}
+
+function openPasswordGenerator(mode = 'password') {
+  $('#tools-title').textContent = 'Password Generator Studio';
+  const node = $('#tools-content'); node.replaceChildren();
+  const box = document.createElement('div'); box.className = 'generator-studio';
+  box.innerHTML = '<div class="view-tabs"><button id="gen-password" class="view-tab active" type="button">Password</button><button id="gen-phrase" class="view-tab" type="button">Passphrase</button></div>' +
+    '<div id="gen-password-options"><label class="field">Length <input id="gen-length" type="range" min="12" max="64" value="24"><span id="gen-length-label">24 characters</span></label>' +
+    '<div class="generator-options"><label class="favorite-field"><input id="gen-upper" type="checkbox" checked> Uppercase</label><label class="favorite-field"><input id="gen-lower" type="checkbox" checked> Lowercase</label><label class="favorite-field"><input id="gen-number" type="checkbox" checked> Numbers</label><label class="favorite-field"><input id="gen-symbol" type="checkbox" checked> Symbols</label></div>' +
+    '<label class="favorite-field"><input id="gen-ambiguous" type="checkbox" checked> Exclude similar-looking characters</label></div>' +
+    '<div id="gen-phrase-options" hidden><label class="field">Words <select id="gen-words"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label><label class="field">Separator <select id="gen-separator"><option value="-">Hyphen</option><option value=".">Period</option><option value="_">Underscore</option><option value=" ">Space</option></select></label></div>' +
+    '<label class="field">Generated value <input id="gen-output" class="generator-output" readonly></label><p id="gen-estimate" class="muted"></p>' +
+    '<div class="modal-actions"><button id="gen-again" class="button subtle" type="button">Generate another</button><button id="gen-copy" class="button subtle" type="button">Copy</button><button id="gen-use" class="button primary" type="button">Use in login</button></div>' +
+    '<p class="modal-footnote">Generated locally with Web Crypto. Values are not saved unless you save the login. Estimates are approximate and not a security guarantee.</p>';
+  node.append(box); $('#tools-modal').hidden = false;
+  const $g = id => box.querySelector('#' + id);
+  function generate() {
+    try {
+      if (generatorMode === 'passphrase') {
+        const count = Number($g('gen-words').value);
+        generatedSecret = VaultlinePasswordGenerator.generatePassphrase(count, $g('gen-separator').value);
+        $g('gen-estimate').textContent = count + ' words · approx. ' + Math.round(VaultlinePasswordGenerator.estimatePassphraseBits(count)) + ' bits';
+      } else {
+        const opts = {length:Number($g('gen-length').value),uppercase:$g('gen-upper').checked,lowercase:$g('gen-lower').checked,numbers:$g('gen-number').checked,symbols:$g('gen-symbol').checked,excludeAmbiguous:$g('gen-ambiguous').checked};
+        generatedSecret = VaultlinePasswordGenerator.generatePassword(opts);
+        $g('gen-estimate').textContent = opts.length + ' characters · approx. ' + Math.round(VaultlinePasswordGenerator.estimatePasswordBits(opts.length,opts)) + ' bits';
+      }
+      $g('gen-output').value = generatedSecret;
+    } catch(e) { generatedSecret=''; $g('gen-output').value=''; $g('gen-estimate').textContent=e.message; }
+  }
+  function mode(next) {
+    generatorMode=next; const phrase=next==='passphrase';
+    $g('gen-password-options').hidden=phrase; $g('gen-phrase-options').hidden=!phrase;
+    $g('gen-password').classList.toggle('active',!phrase); $g('gen-phrase').classList.toggle('active',phrase); generate();
+  }
+  $g('gen-password').addEventListener('click',()=>mode('password'));
+  $g('gen-phrase').addEventListener('click',()=>mode('passphrase'));
+  $g('gen-length').addEventListener('input',e=>{$g('gen-length-label').textContent=e.target.value+' characters';generate()});
+  ['gen-upper','gen-lower','gen-number','gen-symbol','gen-ambiguous','gen-words','gen-separator'].forEach(id=>$g(id).addEventListener('change',generate));
+  $g('gen-again').addEventListener('click',generate);
+  $g('gen-copy').addEventListener('click',()=>writeClipboard(generatedSecret,'Generated value').catch(e=>showToast(e.message)));
+  $g('gen-use').addEventListener('click',()=>{
+    if(!generatedSecret){showToast('Generate a value first.');return}
+    if($('#login-modal').hidden)openModal();
+    $('#field-password').value=generatedSecret;$('#field-password').type='text';
+    $('#tools-modal').hidden=true;generatedSecret='';$g('gen-output').value='';$('#field-password').focus();
+  });
+  mode(mode === 'passphrase' ? 'passphrase' : 'password');
+}
+function closeToolsModal() {
+  $('#tools-modal').hidden=true; generatedSecret='';
+  const output=$('#tools-content').querySelector('#gen-output'); if(output)output.value='';
+}
+
 async function openSecurityCenter(){
   $('#tools-title').textContent='Security Center';$('#tools-content').replaceChildren();
   const box=document.createElement('div');box.innerHTML='<p class="muted">Run a local-only review of the passwords stored on this Mac. Passwords are not sent to a web service.</p><button class="button primary" id="run-audit">Run password health check</button><div id="audit-results" class="tools-results"></div><button class="button subtle" id="show-activity">View activity history</button>';
@@ -657,7 +712,7 @@ $('#add-note-button').addEventListener('click',()=>openNoteModal());$('#add-iden
 $('#note-form').addEventListener('submit',saveNote);$('#note-modal-close').addEventListener('click',closeNoteModal);$('#note-cancel').addEventListener('click',closeNoteModal);
 $('#identity-form').addEventListener('submit',saveIdentity);$('#identity-modal-close').addEventListener('click',closeIdentityModal);$('#identity-cancel').addEventListener('click',closeIdentityModal);
 $('#history-close').addEventListener('click',()=>$('#history-modal').hidden=true);$('#backup-close').addEventListener('click',()=>$('#backup-modal').hidden=true);$('#backup-button').addEventListener('click',()=>$('#backup-modal').hidden=false);
-$('#backup-export').addEventListener('click',()=>exportEncryptedBackup().catch(e=>showToast(e.message)));$('#backup-import').addEventListener('click',()=>$('#backup-file').click());$('#backup-file').addEventListener('change',()=>{const file=$('#backup-file').files?.[0];if(file)importEncryptedBackup(file).catch(e=>showToast(e.message));$('#backup-file').value='';});$('#security-button').addEventListener('click',openSecurityCenter);$('#settings-button').addEventListener('click',openSettings);$('#tools-close').addEventListener('click',()=>$('#tools-modal').hidden=true);
+$('#backup-export').addEventListener('click',()=>exportEncryptedBackup().catch(e=>showToast(e.message)));$('#backup-import').addEventListener('click',()=>$('#backup-file').click());$('#backup-file').addEventListener('change',()=>{const file=$('#backup-file').files?.[0];if(file)importEncryptedBackup(file).catch(e=>showToast(e.message));$('#backup-file').value='';});$('#password-generator-button').addEventListener('click',()=>openPasswordGenerator('password'));$('#security-button').addEventListener('click',openSecurityCenter);$('#settings-button').addEventListener('click',openSettings);$('#tools-close').addEventListener('click',closeToolsModal);
 $('#empty-add-button').addEventListener('click',()=>{if(viewMode==='notes')openNoteModal();else if(viewMode==='identities')openIdentityModal();else if(viewMode==='cards')openCardModal();else openModal()});
 $('#capture-button').addEventListener('click', captureFromPage);
 $('#modal-close').addEventListener('click', closeModal);
@@ -668,8 +723,8 @@ $('#card-modal-cancel').addEventListener('click', closeCardModal);
 $('#card-form').addEventListener('submit', saveCard);
 $('#card-number-toggle').addEventListener('click', () => { const input = $('#card-number'); input.type = input.type === 'password' ? 'text' : 'password'; $('#card-number-toggle').textContent = input.type === 'password' ? 'Show' : 'Hide'; });
 $('#field-website').addEventListener('change', () => { if (!$('#field-title').value.trim()) $('#field-title').value = normalizeHost($('#field-website').value); });
-$('#generate-button').addEventListener('click', () => { $('#field-password').value = randomPassword(); $('#field-password').type = 'text'; });
-$('#generate-passphrase-button').addEventListener('click',()=>{$('#field-password').value=randomPassphrase();$('#field-password').type='text';showToast('A random passphrase was generated.');});
+$('#generate-button').addEventListener('click', () => openPasswordGenerator('password'));
+$('#generate-passphrase-button').addEventListener('click',()=>openPasswordGenerator('passphrase'));
 $('#search-input').addEventListener('input', renderList);
 $('#theme-button').addEventListener('click', () => setTheme(theme === 'dark' ? 'light' : 'dark'));
 $('#lock-button').addEventListener('click', lockVault);
@@ -699,7 +754,7 @@ $('#detail-panel').addEventListener('click', async (event) => {
 });
 $('#login-modal').addEventListener('click', (event) => { if (event.target === $('#login-modal')) closeModal(); });
 $('#card-modal').addEventListener('click', (event) => { if (event.target === $('#card-modal')) closeCardModal(); });
-window.addEventListener('keydown',(event)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('#search-input').focus()}if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='n'){event.preventDefault();if(viewMode==='logins')openModal();else if(viewMode==='cards')openCardModal();else if(viewMode==='notes')openNoteModal();else openIdentityModal()}if(event.key==='Escape'){closeNoteModal();closeIdentityModal();$('#history-modal').hidden=true;$('#backup-modal').hidden=true;$('#tools-modal').hidden=true}});
+window.addEventListener('keydown',(event)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('#search-input').focus()}if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='n'){event.preventDefault();if(viewMode==='logins')openModal();else if(viewMode==='cards')openCardModal();else if(viewMode==='notes')openNoteModal();else openIdentityModal()}if(event.key==='Escape'){closeNoteModal();closeIdentityModal();$('#history-modal').hidden=true;$('#backup-modal').hidden=true;closeToolsModal()}});
 window.addEventListener('pagehide', () => {
   clearTimeout(revealTimer); clearTimeout(cardRevealTimer);
   revealedId = null; revealedPassword = ''; revealedCardId = null; revealedCardNumber = ''; selectedNoteFull=null; selectedIdentityFull=null;
