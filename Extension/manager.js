@@ -658,7 +658,7 @@ function closeToolsModal() {
 
 async function openSecurityCenter(){
   $('#tools-title').textContent='Security Center';$('#tools-content').replaceChildren();
-  const box=document.createElement('div');box.innerHTML='<p class="muted">Run a local-only review of the passwords stored on this Mac. Passwords are not sent to a web service.</p><button class="button primary" id="run-audit">Run password health check</button><div id="audit-results" class="tools-results"></div><button class="button subtle" id="show-activity">View activity history</button>';
+  const box=document.createElement('div');box.innerHTML='<p class="muted">Review local password-health findings for this Mac. Passwords are checked in the native helper and are never included in findings.</p><button class="button primary" id="run-audit">Run password health check</button><div id="audit-results" class="tools-results"></div><h3 class="generator-section-title">Entries to review</h3><div id="audit-findings" class="tools-results"></div><button class="button subtle" id="show-activity">View activity history</button>';
   $('#tools-content').append(box);$('#tools-modal').hidden=false;
   box.querySelector('#run-audit').addEventListener('click',async()=>{
     const result=await desktopRequest('securityAudit'),node=box.querySelector('#audit-results');node.replaceChildren();
