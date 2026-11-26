@@ -28,7 +28,6 @@ if (!native.includes('kSecMatchLimit as String: kSecMatchLimitOne')) throw new E
 if (!native.includes('com.vaultline.credentials.v2')) throw new Error('Existing Keychain service identifier changed unexpectedly.');
 if (!native.includes('let findings: [[String: Any]] = records.compactMap')) throw new Error('Security audit findings are missing.');
 if (!native.includes('"issues": issues')) throw new Error('Security audit issue metadata is missing.');
-if (!native.includes('"version": "1.2.0"')) throw new Error('Native helper version was not updated.');
 if (!native.includes('"version": "1.2.1"')) throw new Error('Native helper version is not 1.2.1.');
 if (manifest.version !== '1.2.1') throw new Error('Extension version is not 1.2.1.');
 if (!buildScript.includes('<key>CFBundleShortVersionString</key><string>1.2.1</string>')) throw new Error('Desktop version is not 1.2.1.');
