@@ -88,7 +88,7 @@ The macOS app provides a native vault viewer, editor, and authentication surface
 
 - Use macOS authentication through LocalAuthentication: Touch ID when available, with the Mac account password as fallback.
 - A successful desktop unlock is reused for protected reveal/copy actions during a five-minute session, rather than prompting for every item.
-- Locking invalidates the cached authentication context immediately; authentication is required again after locking or session expiry.
+- The desktop vault automatically locks and clears its in-memory records when the five-minute session expires. Locking manually also invalidates the cached authentication context immediately.
 - Optionally clear a copied Vaultline value from the clipboard after a delay, if the clipboard still contains that same value.
 - Run local password checks for short or reused passwords and HTTP website entries; Security Center lists affected logins and finding reasons without returning password values.
 - View local activity events for supported vault actions.
@@ -173,7 +173,7 @@ Vaultline is designed to keep credential records on the Mac rather than sync the
 Important details for this early release:
 
 - The native helper uses an allow-list of supported commands and macOS authentication before protected operations.
-- The desktop app and native helper each cache successful macOS authentication for up to five minutes. Desktop Lock invalidates the desktop context; extension Lock invalidates the native-helper context. These are separate sessions.
+- The desktop app and native helper each cache successful macOS authentication for up to five minutes. The desktop vault auto-locks at session expiry and manual Desktop Lock invalidates its context; extension Lock invalidates the native-helper context. These are separate sessions.
 - Login autofill uses exact normalized hostname matching and requires a user action.
 - The save-password detection script runs on HTTP and HTTPS pages so it can detect populated login forms. It only sends a detected login after the user explicitly chooses the save prompt. Review this broad site access before installing.
 - Card autofill is restricted to HTTPS and supported fields. CVV/CVC and PIN values are not stored or filled.
