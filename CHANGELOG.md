@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.1 — Security session and authentication usability
+
+- Reuses a successful macOS LocalAuthentication context for up to five minutes across desktop reveal/copy actions, avoiding a separate password prompt for every saved item.
+- Explicitly invalidates the cached context and clears the desktop session when Vaultline is locked.
+- Requires authentication again after five minutes or an explicit lock.
+- Aligns desktop app, native helper, browser extension, and release metadata at 1.2.1.
+- Adds static regression checks for authentication-session behavior and release version consistency.
+
 ## 1.2.0 — Password Generator Studio and actionable Security Center
 
 - Added a standalone Password Generator Studio to the browser extension.
