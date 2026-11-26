@@ -34,7 +34,8 @@ if (!buildScript.includes('<key>CFBundleShortVersionString</key><string>1.2.1</s
 if (!readme.includes('version-1.2.1-')) throw new Error('README version badge is not 1.2.1.');
 if (!desktop.includes('private let desktopSessionLifetime: TimeInterval = 5 * 60') ||
     !desktop.includes('private var authenticationContext: LAContext?') ||
-    !desktop.includes('self.authenticatedUntil = Date().addingTimeInterval(desktopSessionLifetime)')) {
+    !desktop.includes('self.authenticatedUntil = expiry') ||
+    !desktop.includes('DispatchQueue.main.asyncAfter(deadline: .now() + desktopSessionLifetime)')) {
   throw new Error('Desktop five-minute authentication cache is missing.');
 }
 const lockStart = desktop.indexOf('    func lock() {');
