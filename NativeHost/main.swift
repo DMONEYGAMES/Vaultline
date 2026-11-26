@@ -495,7 +495,7 @@ while let message = readMessage() {
     }
 
     if command == "ping" {
-        reply(["ok": true, "version": "1.2.0", "store": "macOS-Keychain"])
+        reply(["ok": true, "version": "1.2.1", "store": "macOS-Keychain"])
         continue
     }
     if command == "lock" {
