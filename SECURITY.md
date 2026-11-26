@@ -9,7 +9,7 @@ Please do not publish passwords, card data, Keychain exports, backup files, toke
 ## Security design notes
 
 - Credential records are stored locally in macOS Keychain. There is no cloud sync in this release.
-- Native Messaging requests pass through an allow-list and macOS LocalAuthentication gate. The native helper caches authentication for up to five minutes per helper process; extension Lock invalidates that helper session. The desktop app separately caches its LocalAuthentication context for up to five minutes and invalidates it when the desktop vault is locked.
+- Native Messaging requests pass through an allow-list and macOS LocalAuthentication gate. The native helper caches authentication for up to five minutes per helper process; extension Lock invalidates that helper session. The desktop app separately caches its LocalAuthentication context for up to five minutes, automatically locks and clears in-memory vault records at session expiry, and invalidates the context immediately when the desktop vault is manually locked.
 - Login retrieval checks exact normalized hostnames. Autofill is user-initiated and does not submit forms.
 - Card autofill is limited to HTTPS and supported fields; CVV/CVC and PIN are never stored or filled.
 - The optional save-password prompt content script runs on HTTP/HTTPS pages because it detects populated login forms. It only sends a detected record after the user explicitly clicks the save prompt.
