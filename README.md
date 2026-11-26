@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.2.0-3978F6">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.2.1-3978F6">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS-111827">
   <img alt="Browser" src="https://img.shields.io/badge/browser-Chrome%20%7C%20Edge-4285F4">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-22A06B">
@@ -29,7 +29,7 @@
 ---
 
 > [!IMPORTANT]
-> **Vaultline 1.2.0 is an early open-source release and has not received an independent security audit.** Static checks do not prove that the application is secure or that every feature works correctly in a live environment. Test with disposable sample data only. Do not use Vaultline as your only protection for important accounts or store sensitive real-world credentials until the implementation has been independently reviewed and thoroughly tested.
+> **Vaultline 1.2.1 is an early open-source release and has not received an independent security audit.** Static checks do not prove that the application is secure or that every feature works correctly in a live environment. Test with disposable sample data only. Do not use Vaultline as your only protection for important accounts or store sensitive real-world credentials until the implementation has been independently reviewed and thoroughly tested.
 
 ## What is Vaultline?
 
@@ -87,7 +87,8 @@ The macOS app provides a native vault viewer, editor, and authentication surface
 ### Security and settings
 
 - Use macOS authentication through LocalAuthentication: Touch ID when available, with the Mac account password as fallback.
-- Lock the vault to end the authenticated session.
+- A successful desktop unlock is reused for protected reveal/copy actions during a five-minute session, rather than prompting for every item.
+- The desktop vault automatically locks and clears its in-memory records when the five-minute session expires. Locking manually also invalidates the cached authentication context immediately.
 - Optionally clear a copied Vaultline value from the clipboard after a delay, if the clipboard still contains that same value.
 - Run local password checks for short or reused passwords and HTTP website entries; Security Center lists affected logins and finding reasons without returning password values.
 - View local activity events for supported vault actions.
@@ -111,7 +112,7 @@ macOS Keychain
 Vaultline Desktop app
 ```
 
-Credential records are stored locally in the Mac's Keychain. There is no cloud vault or remote credential database in 1.2.0. The browser extension stores interface preferences in browser storage, while credential records remain in the Keychain.
+Credential records are stored locally in the Mac's Keychain. There is no cloud vault or remote credential database in 1.2.1. The browser extension stores interface preferences in browser storage, while credential records remain in the Keychain.
 
 The desktop window does not need to remain open for browser-extension requests; the browser launches the native helper when needed. The Mac must be available and able to authorize Keychain access.
 
@@ -172,7 +173,7 @@ Vaultline is designed to keep credential records on the Mac rather than sync the
 Important details for this early release:
 
 - The native helper uses an allow-list of supported commands and macOS authentication before protected operations.
-- A successful authentication is cached for a short session (currently five minutes); locking ends the session.
+- The desktop app and native helper each cache successful macOS authentication for up to five minutes. The desktop vault auto-locks at session expiry and manual Desktop Lock invalidates its context; extension Lock invalidates the native-helper context. These are separate sessions.
 - Login autofill uses exact normalized hostname matching and requires a user action.
 - The save-password detection script runs on HTTP and HTTPS pages so it can detect populated login forms. It only sends a detected login after the user explicitly chooses the save prompt. Review this broad site access before installing.
 - Card autofill is restricted to HTTPS and supported fields. CVV/CVC and PIN values are not stored or filled.
@@ -180,7 +181,7 @@ Important details for this early release:
 - Clipboard clearing is best-effort and only clears the clipboard when it still contains the value Vaultline copied.
 - The Security Center performs local checks only. It does not query breach databases and its score is not a guarantee that an account is safe.
 
-### Not included in 1.2.0
+### Not included in 1.2.1
 
 - Cloud synchronization or a hosted Vaultline account.
 - Account-to-account password sharing.

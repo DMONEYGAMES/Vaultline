@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Vaultline Password Manager",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Mac Keychain-backed password manager with configurable password and passphrase generation, secure notes, identities, payment cards, and browser autofill.",
   "minimum_chrome_version": "114",
   "permissions": [

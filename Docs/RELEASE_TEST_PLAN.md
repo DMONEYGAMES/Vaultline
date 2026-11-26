@@ -1,10 +1,10 @@
-# Vaultline 1.2.0 release test plan
+# Vaultline 1.2.1 release test plan
 
 Use synthetic/test credentials only. Do not use real payment card details or important passwords during pre-release testing.
 
 ## Build and install
 
-- [ ] Desktop app, native helper ping, extension manifest, and UI version labels report 1.2.0.
+- [ ] Desktop app, native helper ping, extension manifest, and UI version labels report 1.2.1.
 - [ ] `node Tests/password-generator.test.js` passes.
 
 - [ ] `Scripts/verify-static.sh` passes.
@@ -40,7 +40,10 @@ Use synthetic/test credentials only. Do not use real payment card details or imp
 
 ## Security and recovery
 
-- [ ] Locking the desktop invalidates the current authentication session.
+- [ ] Unlock once, then reveal and copy several different login passwords and card numbers; confirm no additional macOS prompt appears during the five-minute desktop session.
+- [ ] After five minutes, confirm the next protected reveal/copy action requests authentication again.
+- [ ] Locking the desktop invalidates its cached authentication context; the next protected action requires a new unlock.
+- [ ] Locking the browser extension invalidates the native-helper session; the next protected extension request requires authentication.
 - [ ] Canceling macOS authentication cancels the requested operation.
 - [ ] Clipboard auto-clear does not clear unrelated clipboard content copied later by another app.
 - [ ] Create an encrypted `.vaultline` backup with a strong unique passphrase.

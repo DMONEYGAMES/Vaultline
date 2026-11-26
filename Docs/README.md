@@ -1,4 +1,4 @@
-# Vaultline 1.0.0 — Build & installation
+# Vaultline 1.2.1 — Build & installation
 
 ## Requirements
 
@@ -10,7 +10,7 @@
 ## Build the Mac app and native helper
 
 ```bash
-cd /path/to/Vaultline-1.0.0
+cd /path/to/Vaultline
 chmod +x Scripts/*.sh
 ./Scripts/verify-static.sh
 ./Scripts/build-macos.sh
@@ -32,13 +32,14 @@ The native helper is launched by Chrome/Edge through Native Messaging when the e
 
 - All credential records are stored in the macOS Keychain using the existing `com.vaultline.credentials.v2` service so compatible earlier records can remain available.
 - Touch ID is used through macOS LocalAuthentication when available; the Mac account password is the fallback.
+- The desktop app reuses a successful authentication context for up to five minutes across protected reveal/copy actions. Locking the desktop clears that context. The extension's native helper maintains its own five-minute session.
 - The extension list receives metadata; full secrets are requested only for a selected/reveal/copy/fill action and require native authentication.
 - Login autofill requires exact normalized hostname matching and an explicit user action. It does not submit forms.
 - Card autofill is restricted to HTTPS and supported card fields. CVV/CVC and PIN values are not stored or filled.
 - The form-save helper runs on HTTP/HTTPS pages, but only saves when the user explicitly clicks its prompt.
 - The encrypted backup file requires a passphrase of at least 12 characters and is currently limited to a 600 KiB plaintext vault payload due to the Native Messaging message-size cap. Losing the passphrase means losing access to that backup.
 - Clipboard-read permission is used only to check whether the clipboard still contains the text Vaultline copied before clearing it on a timer.
-- TOTP-based second-factor unlock and cloud/account sharing are not included in 1.0.0.
+- TOTP-based second-factor unlock, cloud sync, and account sharing are not included in 1.2.1.
 - Static checks are not a live macOS/browser test or independent security audit. Start with sample data and follow `RELEASE_TEST_PLAN.md`.
 
 ## Build fix note

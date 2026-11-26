@@ -4,6 +4,7 @@ import Security
 import AppKit
 
 private let serviceName = "com.vaultline.credentials.v2"
+private let desktopSessionLifetime: TimeInterval = 5 * 60
 
 struct LoginRecord: Codable, Identifiable, Equatable {
     var id: String
@@ -61,8 +62,17 @@ struct VaultActivity: Codable, Identifiable { var id: String; var date: Double; 
     @Published var activities: [VaultActivity] = []
     @Published var status = "Your vault is stored in this Mac's Keychain."
     @Published var unlocked = false
+    private var authenticationContext: LAContext?
+    private var authenticatedUntil = Date.distantPast
 
     func authenticate(reason: String, completion: @escaping (Bool) -> Void) {
+        if Date() < authenticatedUntil, authenticationContext != nil {
+            completion(true)
+            return
+        }
+        authenticationContext?.invalidate()
+        authenticationContext = nil
+        authenticatedUntil = .distantPast
         let context = LAContext()
         context.localizedCancelTitle = "Cancel"
         var error: NSError?
@@ -72,7 +82,20 @@ struct VaultActivity: Codable, Identifiable { var id: String; var date: Double; 
         }
         context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authError in
             DispatchQueue.main.async {
-                if !success { self.status = authError?.localizedDescription ?? "Authentication cancelled." }
+                if success {
+                    self.authenticationContext = context
+                    let expiry = Date().addingTimeInterval(desktopSessionLifetime)
+                    self.authenticatedUntil = expiry
+                    DispatchQueue.main.asyncAfter(deadline: .now() + desktopSessionLifetime) {
+                        guard self.authenticatedUntil == expiry else { return }
+                        self.lock()
+                    }
+                } else {
+                    context.invalidate()
+                    self.authenticationContext = nil
+                    self.authenticatedUntil = .distantPast
+                    self.status = authError?.localizedDescription ?? "Authentication cancelled."
+                }
                 completion(success)
             }
         }
@@ -227,6 +250,9 @@ struct VaultActivity: Codable, Identifiable { var id: String; var date: Double; 
         if code != errSecSuccess && code != errSecItemNotFound { status = "Delete failed (\(code))." }
     }
     func lock() {
+        authenticationContext?.invalidate()
+        authenticationContext = nil
+        authenticatedUntil = .distantPast
         logins = []; cards = []; notes = []; identities = []; unlocked = false
         status = "Vault locked. Unlock again to manage your data."
     }
@@ -382,7 +408,7 @@ struct ContentView: View {
                     .foregroundStyle(VaultlinePalette.muted)
             }
             Spacer(minLength: 4)
-            Text("1.2.0")
+            Text("1.2.1")
                 .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundStyle(VaultlinePalette.muted)
                 .padding(.horizontal, 8)
