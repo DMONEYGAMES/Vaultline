@@ -84,7 +84,12 @@ struct VaultActivity: Codable, Identifiable { var id: String; var date: Double; 
             DispatchQueue.main.async {
                 if success {
                     self.authenticationContext = context
-                    self.authenticatedUntil = Date().addingTimeInterval(desktopSessionLifetime)
+                    let expiry = Date().addingTimeInterval(desktopSessionLifetime)
+                    self.authenticatedUntil = expiry
+                    DispatchQueue.main.asyncAfter(deadline: .now() + desktopSessionLifetime) {
+                        guard self.authenticatedUntil == expiry else { return }
+                        self.lock()
+                    }
                 } else {
                     context.invalidate()
                     self.authenticationContext = nil
